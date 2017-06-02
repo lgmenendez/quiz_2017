@@ -191,14 +191,25 @@ exports.check = function (req, res, next) {
 // GET /quizzes/randomplay
 exports.randomplay = function (req, res, next){
 
-    if (!req.session.qans){ 
+    if (!req.session.score || !req.session.qans){ 
+    	req.session.score=0;
     	req.session.qans = [-1];
     }
+    if(!req.session.wrong){
+    	req.session.wrong=0;
+    }
+
+    if(req.session.wrong===1){
+    	req.session.score=0;
+    }
+
+
     models.Quiz.count()
     .then(function (num) {
         if (num === (req.session.qans.length-1) ) {      
-            res.redirect("/quizzes/randomnomore");
-        } 
+            res.render("/quizzes/randomnomore",{
+            score: req.session.s
+        });} 
         else{    
 
             var findOptions = {};
@@ -212,7 +223,7 @@ exports.randomplay = function (req, res, next){
             .then(function(quizzes){
                   res.render('quizzes/random_play', {
                     quiz: quizzes[0],
-                    score: req.session.qans.length -1
+                    score: req.session.score
                 });
             });
 
@@ -234,14 +245,17 @@ exports.randomcheck  = function (req, res, next) {
 
     var result = answer.toLowerCase().trim() === req.quiz.answer.toLowerCase().trim();
 
-    var puntos = req.session.qans.length - 1;
+    var puntos = req.session.score;
 
     if(result) {
         req.session.qans.push(req.quiz.id);
         puntos++;
+        req.session.wrong=0;
     } 
     else {
         req.session.qans = [-1];
+        req.session.wrong=1;
+        pntos=0;
     }
 
     res.render('quizzes/random_result', {
@@ -254,7 +268,7 @@ exports.randomcheck  = function (req, res, next) {
 
 // GET /quizzes/randomnomore
 exports.randomnomore = function (req, res, next) {
-    var puntos = req.session.qans.length - 1;
+    var puntos = req.session.score;
     req.session.qans = [-1];
 
     res.render('quizzes/random_nomore', {
