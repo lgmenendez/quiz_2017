@@ -255,7 +255,7 @@ exports.randomcheck  = function (req, res, next) {
     else {
         req.session.qans = [-1];
         req.session.wrong=1;
-        pntos=0;
+        puntos=0;
     }
 
     res.render('quizzes/random_result', {
