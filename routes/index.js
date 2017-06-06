@@ -46,14 +46,6 @@ router.get('/author', function (req, res, next) {
     res.render('author');
 });
 
-// Pagina de ayuda
-router.get('/ayuda', function(req, res, next) {
-    res.render('ayuda');
-});
-
-// Pagina para jugar
-router.get('/quizzes/randomplay',quizController.randomPlay);
-router.get('/quizzes/randomcheck/:quizId(\\d+)',quizController.randomCheck);
 // Autoload de rutas que usen :quizId
 router.param('quizId', quizController.load);
 router.param('userId', userController.load);
@@ -132,25 +124,24 @@ router.post('/quizzes/:quizId(\\d+)/tips',
     tipController.create);
 router.put('/quizzes/:quizId(\\d+)/tips/:tipId(\\d+)/accept',
     sessionController.loginRequired,
-    tipController.adminOrAuthorRequired,
+    quizController.adminOrAuthorRequired,
     tipController.accept);
 router.delete('/quizzes/:quizId(\\d+)/tips/:tipId(\\d+)',
     sessionController.loginRequired,
-    tipController.adminOrAuthorRequired,
     tipController.destroy);
 
+router.get('/quizzes/randomplay', quizController.randomplay);
+router.get('/quizzes/randomcheck/:quizId(\\d+)', quizController.randomcheck);
 
-router.get('/quizzes',                     quizController.index);
-router.get('/quizzes/:quizId(\\d+)',       quizController.show);
-router.get('/quizzes/new',                 quizController.new);
-router.post('/quizzes',                    quizController.create);
-router.get('/quizzes/:quizId(\\d+)/edit',  quizController.edit);
-router.put('/quizzes/:quizId(\\d+)',       quizController.update);
-router.delete('/quizzes/:quizId(\\d+)',    quizController.destroy);
+module.exports = router;
 
-router.get('/quizzes/:quizId(\\d+)/play',  quizController.play);
-router.get('/quizzes/:quizId(\\d+)/check', quizController.check);
-
-
+//Página de ayuda
+router.get('/help', function(req, res, next) {
+    res.render('help');
+});
+// Página de juego aleatorio
+router.get('/quizzes/randomplay', function(req, res, next) {
+    res.render('quizzes/random_play');
+});
 
 module.exports = router;
