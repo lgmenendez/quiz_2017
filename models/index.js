@@ -15,7 +15,7 @@ if (!process.env.DATABASE_URL) {
     url = "sqlite:///";
     storage = "quiz.sqlite";
 } else {
-    url = process.env.DATABASE_URL;
+    url = /*process.env.DATABASE_URL*/"postgres://gpodpqgecomruo:b01c53a147e762ba9a7c15bcc3ed2126f2369aad976f3f882cc3a78ff64a4131@ec2-23-23-234-118.compute-1.amazonaws.com:5432/d503kl17ksoavs";
     storage = process.env.DATABASE_STORAGE || "";
 }
 
@@ -25,20 +25,6 @@ var sequelize = new Sequelize(url, {storage: storage});
 
 // Importar la definicion de la tabla Quiz de quiz.js
 var Quiz = sequelize.import(path.join(__dirname, 'quiz'));
-
-// Quiz inicial
-sequelize.sync().then(function() {
-  Quiz.count().then(function(count) {
-    if(count === 0) {
-      Quiz.create({
-        question: 'Capital de Italia',
-        answer: 'Roma'
-      }).then(function() {
-        console.log('Quiz inicial creado');
-      });
-    }
-  })
-});
 
 
 // Importar la definicion de la tabla Tips de tips.js
@@ -55,6 +41,10 @@ Quiz.hasMany(Tip);
 // Relacion 1 a N entre User y Quiz:
 User.hasMany(Quiz, {foreignKey: 'AuthorId'});
 Quiz.belongsTo(User, {as: 'Author', foreignKey: 'AuthorId'});
+
+// Relacion 1 a N entre User y Tips:
+User.hasMany(Quiz, {foreignKey: 'AuthorId'});
+Tip.belongsTo(User, {as: 'Author', foreignKey: 'AuthorId'});
 
 
 exports.Quiz = Quiz; // exportar definición de tabla Quiz

@@ -46,12 +46,14 @@ router.get('/author', function (req, res, next) {
     res.render('author');
 });
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-//<<<<<<< HEAD
->>>>>>> practica52
+// Pagina de ayuda
+router.get('/ayuda', function(req, res, next) {
+    res.render('ayuda');
+});
 
+// Pagina para jugar
+router.get('/quizzes/randomplay',quizController.randomPlay);
+router.get('/quizzes/randomcheck/:quizId(\\d+)',quizController.randomCheck);
 // Autoload de rutas que usen :quizId
 router.param('quizId', quizController.load);
 router.param('userId', userController.load);
@@ -93,7 +95,6 @@ router.get('/users/:userId(\\d+)/quizzes', quizController.index);     // ver las
 
 
 // Definición de rutas de /quizzes
-<<<<<<< HEAD
 router.get('/quizzes',
     quizController.index);
 router.get('/quizzes/:quizId(\\d+)',
@@ -131,13 +132,14 @@ router.post('/quizzes/:quizId(\\d+)/tips',
     tipController.create);
 router.put('/quizzes/:quizId(\\d+)/tips/:tipId(\\d+)/accept',
     sessionController.loginRequired,
-    quizController.adminOrAuthorRequired,
+    tipController.adminOrAuthorRequired,
     tipController.accept);
 router.delete('/quizzes/:quizId(\\d+)/tips/:tipId(\\d+)',
     sessionController.loginRequired,
+    tipController.adminOrAuthorRequired,
     tipController.destroy);
-=======
-=======
+
+
 router.get('/quizzes',                     quizController.index);
 router.get('/quizzes/:quizId(\\d+)',       quizController.show);
 router.get('/quizzes/new',                 quizController.new);
@@ -149,20 +151,6 @@ router.delete('/quizzes/:quizId(\\d+)',    quizController.destroy);
 router.get('/quizzes/:quizId(\\d+)/play',  quizController.play);
 router.get('/quizzes/:quizId(\\d+)/check', quizController.check);
 
-router.get('/quizzes/randomplay',          quizController.randomplay);
-router.get('/quizzes/randomcheck/:quizId(\\d+)' , quizController.randomcheck);
-router.get('/quizzes/randomnomore',          quizController.randomnomore);
-//=======
->>>>>>> practica52
-//Pagina de ayuda
-router.get('/help', function(req, res, next) {
-    res.render('help');
-});
-<<<<<<< HEAD
->>>>>>> practica51
-=======
-//>>>>>>> practica51
->>>>>>> practica52
 
 
 module.exports = router;
