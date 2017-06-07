@@ -222,56 +222,79 @@ exports.check = function (req, res, next) {
         answer: answer
     });
 };
+exports.randomPlay= function (req, res, next){
+    var session=req.session;
 
-//GET /quizzes/randomplay
-exports.randomplay = function (req, res, next) {
-    if(!req.session.score || !req.session.answered_right) {
-        req.session.score = 0;
-        req.session.answered_right = [-1];}
-    var answer = req.query.answer || "";
-    if(!req.session.wrong){
-        req.session.wrong = 0;
+    if(!session.contador || session.preguntas.length>session.contador){
+        session.contador=0;
+        session.preguntas=[];
     }
-    if (req.session.wrong === 1) {
-        req.session.score = 0;
-    }
+
     models.Quiz.count()
-        .then(function (count) {
-            return models.Quiz.findAll(
-                {where: {id: { $notIn: req.session.answered_right}}})
-        })
-        .then(function(not_answered){
-            if(not_answered.length == 0) {res.render('quizzes/random_nomore', {
-                score: req.session.score
-            });
-            } else{
-                var random = Math.floor(Math.random() * not_answered.length);
-                res.render('quizzes/random_play', {
-                quiz: not_answered[random],
-                answer: answer,
-                score: req.session.score
+        .then(function(cuenta){
+            console.log("numero_quizzes:",cuenta);
+            console.log("score:",session.contador);
+            //Todas las preguntas contestadas
+            if(session.contador===cuenta){
+                res.render('quizzes/random_nomore',{
+                    score: session.contador
                 });
             }
+            var index=1;
+            var tmp;
+            //Genero un id no contestado
+            while(index>=0 &&session.contador!==cuenta){
+                tmp=Math.floor((Math.random()*cuenta))+1;
+                index=session.preguntas.indexOf(tmp);
+                /**contestada=false;
+                 for(var i=0;i<session.preguntas;i++){
+                   if(session.preguntas[i]===tmp){
+                       contestada=true;
+                   }
+               }*/
+                console.log("id:",tmp);
+                console.log("indice:",index);
+            }
+
+            session.preguntas.push(tmp);
+            return models.Quiz.findById(tmp);
+
         })
+        .then(function (pregunta) {
+            console.log(session.preguntas);
+            res.render('quizzes/random_play',{
+                score: session.contador,
+                quiz: pregunta
+            });
+        })
+        .catch(function (error) {
+            req.flash('error','Error del tipo: ',error.message);
+            next(error);
+        });
 };
 
+exports.randomCheck= function (req, res, next){
+    var session=req.session;
+    var respuesta=req.query.answer || '';
 
-// GET /quizzes/randomcheck/:quizId?answer=respuesta
-exports.randomcheck = function(req, res, next){
-    var answer = req.query.answer || "";
-    var result = answer.toLowerCase().trim() === req.quiz.answer.toLowerCase().trim();
-    if(!req.session.score || !req.session.answered_right) { //NUEVOOOOOOOOO
-        req.session.score = 0;
-        req.session.answered_right = [-1];}
-    if(result) {
-        req.session.score++;
-        req.session.wrong = 0;
-        req.session.answered_right.push(req.quiz.id);
-    } else {req.session.wrong = 1;
-    req.session.score = 0;}
-    res.render('quizzes/random_result', {
-        score: req.session.score,
-        result: result,
-        answer: answer
-    });
+    var id= req.quiz.id;
+    models.Quiz.findById(id)
+        .then(function (pregunta) {
+            var resultado=respuesta.toLocaleLowerCase().trim()===pregunta.answer.toLocaleLowerCase().trim();
+            if(resultado){
+                session.contador= session.contador++ || 1;
+            }else{
+                session.contador=0;
+            }
+            res.render('quizzes/random_result', {
+                score:session.contador,
+                answer:respuesta,
+                result:resultado
+            });
+        })
+        .catch(function (error) {
+            req.flash('error','Error del tipo: ',error.message);
+            next(error);
+        });
+
 };
