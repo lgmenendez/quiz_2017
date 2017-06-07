@@ -99,16 +99,3 @@ exports.destroy = function (req, res, next) {
         next(error);
     });
 };
-// MW que permite acciones solamente si al usuario logeado es admin o es el autor del quiz.
-exports.adminOrAuthorRequired = function(req, res, next){
-
-    var isAdmin  = req.session.user.isAdmin;
-    var isAuthor = req.tip.AuthorId === req.session.user.id;
-
-    if (isAdmin || isAuthor) {
-        next();
-    } else {
-        console.log('Operación prohibida: El usuario logeado no es el autor del quiz, ni un administrador.');
-        res.send(403);
-    }
-};
